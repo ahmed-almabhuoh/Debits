@@ -68,6 +68,14 @@ class UserResource extends Resource
             ]);
     }
 
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\ReceiptsRelationManager::class,
+            RelationManagers\DisbursementsRelationManager::class,
+        ];
+    }
+
     public static function getPages(): array
     {
         return [

@@ -70,6 +70,16 @@ class User extends Authenticatable
         return $this->hasMany(Identification::class);
     }
 
+    public function receipts(): HasMany
+    {
+        return $this->hasMany(Receipt::class);
+    }
+
+    public function disbursements(): HasMany
+    {
+        return $this->hasMany(Disbursement::class);
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         return true; // Adjust based on your authorization logic
