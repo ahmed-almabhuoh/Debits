@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\DisbursementResource\Pages;
 use App\Filament\Resources\DisbursementResource\RelationManagers;
 use App\Models\Disbursement;
+use App\Models\Setting;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -30,8 +31,14 @@ class DisbursementResource extends Resource
                 Forms\Components\TextInput::make('amount')
                     ->required()
                     ->numeric()
-                    ->prefix('$')
                     ->minValue(0),
+                Forms\Components\Select::make('currency')
+                    ->options(array_combine(
+                        Setting::getSupportedCurrencies(),
+                        Setting::getSupportedCurrencies()
+                    ))
+                    ->required()
+                    ->default(Setting::getDefaultCurrency()),
                 Forms\Components\Textarea::make('description')
                     ->maxLength(65535)
                     ->columnSpanFull(),
@@ -58,7 +65,9 @@ class DisbursementResource extends Resource
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('amount')
-                    ->money('usd')
+                    ->formatStateUsing(fn($state, $record) => \App\Helpers\CurrencyHelper::getSymbol($record->currency) . number_format($state, 2))
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('currency')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('disbursement_date')
                     ->date()
@@ -76,6 +85,11 @@ class DisbursementResource extends Resource
                         'bank_transfer' => 'Bank Transfer',
                         'other' => 'Other',
                     ]),
+                Tables\Filters\SelectFilter::make('currency')
+                    ->options(array_combine(
+                        Setting::getSupportedCurrencies(),
+                        Setting::getSupportedCurrencies()
+                    )),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -91,7 +105,7 @@ class DisbursementResource extends Resource
         return [
             'index' => Pages\ListDisbursements::route('/'),
             'create' => Pages\CreateDisbursement::route('/create'),
-            'edit' => Pages\EditDisbursement::route('/{record}/edit'),
+            'edit' => Pages\EditDisbursement::route('/{record FIBEROPTIC/edit'),
         ];
     }
 }

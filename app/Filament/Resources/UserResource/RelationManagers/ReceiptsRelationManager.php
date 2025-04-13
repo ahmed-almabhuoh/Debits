@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\UserResource\RelationManagers;
 
+use App\Models\Setting;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -21,8 +22,14 @@ class ReceiptsRelationManager extends RelationManager
                 Forms\Components\TextInput::make('amount')
                     ->required()
                     ->numeric()
-                    ->prefix('$')
                     ->minValue(0),
+                Forms\Components\Select::make('currency')
+                    ->options(array_combine(
+                        Setting::getSupportedCurrencies(),
+                        Setting::getSupportedCurrencies()
+                    ))
+                    ->required()
+                    ->default(Setting::getDefaultCurrency()),
                 Forms\Components\Textarea::make('description')
                     ->maxLength(65535)
                     ->columnSpanFull(),
@@ -47,7 +54,8 @@ class ReceiptsRelationManager extends RelationManager
             ->recordTitleAttribute('amount')
             ->columns([
                 Tables\Columns\TextColumn::make('amount')
-                    ->money('usd'),
+                    ->formatStateUsing(fn($state, $record) => number_format($state, 2) . ' ' . $record->currency),
+                Tables\Columns\TextColumn::make('currency'),
                 Tables\Columns\TextColumn::make('receipt_date')
                     ->date(),
                 Tables\Columns\TextColumn::make('payment_method'),

@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
+use App\Models\Setting;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -34,11 +35,17 @@ class UserResource extends Resource
                     ->unique(table: User::class, column: 'email', ignoreRecord: true),
                 Forms\Components\TextInput::make('password')
                     ->password()
-                    ->required(fn($livewire) => $livewire instanceof Pages\CreateUser)
+                    ->required(fn ($livewire) => $livewire instanceof Pages\CreateUser)
                     ->minLength(8)
-                    ->dehydrateStateUsing(fn($state) => Hash::make($state))
-                    ->dehydrated(fn($state) => filled($state))
-                    ->visible(fn($livewire) => $livewire instanceof Pages\CreateUser || $livewire instanceof Pages\EditUser),
+                    ->dehydrateStateUsing(fn ($state) => Hash::make($state))
+                    ->dehydrated(fn ($state) => filled($state))
+                    ->visible(fn ($livewire) => $livewire instanceof Pages\CreateUser || $livewire instanceof Pages\EditUser),
+                Forms\Components\Select::make('preferred_currency')
+                    ->options(array_combine(
+                        Setting::getSupportedCurrencies(),
+                        Setting::getSupportedCurrencies()
+                    ))
+                    ->default(Setting::getDefaultCurrency()),
             ]);
     }
 
@@ -51,6 +58,8 @@ class UserResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('preferred_currency')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

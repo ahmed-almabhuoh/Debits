@@ -10,6 +10,7 @@ class Receipt extends Model
     protected $fillable = [
         'user_id',
         'amount',
+        'currency',
         'description',
         'receipt_date',
         'payment_method',
